@@ -8,6 +8,9 @@ Automating the student lab checking process with a bash script.
 63011290 Ratchwalee Wongritdechakit\
 63011335 Tawan Lekngam
 
+## Environment
+gcc and bash is required for the execution of the script
+
 ## Usage
 1. cd to your home directory
 2. Run `./autochecker.sh LabXY Z`\
