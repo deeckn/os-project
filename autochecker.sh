@@ -28,6 +28,12 @@ SCORE=0
 FILE_EXIST=false
 COMPILED=false
 
+# Check if result file exist
+if [ -e "../$RESULTS_DIR/$RESULT_FILE_NAME" ]
+# Delete existing file
+then rm "../$RESULTS_DIR/$RESULT_FILE_NAME"
+fi
+
 # Loop through each student
 for STUDENT_DIR in *
 do
@@ -65,7 +71,7 @@ do
     if $COMPILED
     then rm "$STUDENT_DIR/$LAB_FILE_NAME"
     fi
-    
+
     # Write to text file
     touch "../$RESULTS_DIR/$RESULT_FILE_NAME"
     printf "$STUDENT_DIR;$SCORE\n" >> "../$RESULTS_DIR/$RESULT_FILE_NAME"
