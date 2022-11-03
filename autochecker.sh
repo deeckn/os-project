@@ -16,11 +16,21 @@ EXPECTED_OUTPUT="$2"
 LENGTH=${#LAB_FILE_NAME}
 LAB_NUMBER="${LAB_FILE_NAME::LENGTH-1}" #LABFILE_NAME[-1]
 
+<<com
+    Beam Part: Check input format
+    Be sure to use variables that is easily understandable and use comments if needed
+com
+
 # Result location
 RESULTS_DIR="LabResults"
 RESULT_FILE_NAME="result$LAB_FILE_NAME.txt"
 
 # Change to lab directory
+<<com
+    TODO: Check if lab directory exists
+    Eg. ./autochecker.sh Lab31 20
+        -> Lab3 doesn't exist, give feedback and terminate program (or loop to receive input until correct, or allow them to quit)
+com
 cd "$LAB_FOLDER_PATH/$LAB_NUMBER"
 
 # Control variables
@@ -71,7 +81,7 @@ do
     if $COMPILED
     then rm "$STUDENT_DIR/$LAB_FILE_NAME"
     fi
-
+    
     # Write to text file
     touch "../$RESULTS_DIR/$RESULT_FILE_NAME"
     printf "$STUDENT_DIR;$SCORE\n" >> "../$RESULTS_DIR/$RESULT_FILE_NAME"
@@ -81,3 +91,6 @@ do
     FILE_EXIST=false
     COMPILED=false
 done
+
+# User Feedback
+printf "\nResult file created at $LAB_FOLDER_PATH$RESULTS_DIR/$RESULT_FILE_NAME"
