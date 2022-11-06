@@ -25,18 +25,64 @@ com
 RESULTS_DIR="LabResults"
 RESULT_FILE_NAME="result$LAB_FILE_NAME.txt"
 
-# Change to lab directory
 <<com
     TODO: Check if lab directory exists
     Eg. ./autochecker.sh Lab31 20
         -> Lab3 doesn't exist, give feedback and terminate program (or loop to receive input until correct, or allow them to quit)
 com
-cd "$LAB_FOLDER_PATH/$LAB_NUMBER"
 
-# Control variables
-SCORE=0
-FILE_EXIST=false
-COMPILED=false
+# Change to lab directory
+if [ -d "$LAB_FOLDER_PATH/$LAB_NUMBER" ]
+then 
+    cd "$LAB_FOLDER_PATH/$LAB_NUMBER"
+else 
+    echo "directory is not exist"
+    exit "-1"
+fi
+
+# param: studentDir
+function checkScore {
+    local FILE_EXIST=false
+    local COMPILED=false
+    local SCORE=0
+
+    # check if file exist
+    if [ -e "$1/$LAB_FILE_NAME.c" ]
+    then FILE_EXIST=true
+    fi
+
+    # complie c code
+    if $FILE_EXIST
+    then
+        if gcc "$1/$LAB_FILE_NAME.c" -o "$1/$LAB_FILE_NAME"
+        then
+            COMPILED=true
+            SCORE=$((SCORE+1))
+        else SCORE=1
+        fi
+    fi
+
+    # run c code
+    if $COMPILED
+    then
+        ./"$1/$LAB_FILE_NAME"
+        local OUTPUT=$?
+        
+        # Check if output is correct
+        if [[ $OUTPUT == $EXPECTED_OUTPUT ]]
+        then SCORE=$((SCORE+2))
+        else SCORE=$((SCORE+1))
+        fi
+    fi
+
+    # delete executable file
+    if $COMPILED
+    then rm "$1/$LAB_FILE_NAME"
+    fi
+
+    # return score
+    echo $SCORE
+}
 
 # Check if result file exist
 if [ -e "../$RESULTS_DIR/$RESULT_FILE_NAME" ]
@@ -47,49 +93,11 @@ fi
 # Loop through each student
 for STUDENT_DIR in *
 do
-    # Check if file exist
-    if [ -e "$STUDENT_DIR/$LAB_FILE_NAME.c" ]
-    then FILE_EXIST=true
-    fi
-    
-    # Compile student code
-    if $FILE_EXIST
-    then
-        if gcc "$STUDENT_DIR/$LAB_FILE_NAME.c" -o "$STUDENT_DIR/$LAB_FILE_NAME"
-        then
-            COMPILED=true
-            SCORE=$((SCORE+1))
-        else
-            SCORE=1
-        fi
-    fi
-    
-    # Run student code
-    if $COMPILED
-    then
-        ./"$STUDENT_DIR/$LAB_FILE_NAME"
-        OUTPUT=$?
-        
-        # Check if output is correct
-        if [[ $OUTPUT == $EXPECTED_OUTPUT ]]
-        then SCORE=$((SCORE+2))
-        else SCORE=$((SCORE+1))
-        fi
-    fi
-    
-    # Delete executable file
-    if $COMPILED
-    then rm "$STUDENT_DIR/$LAB_FILE_NAME"
-    fi
+    SCORE=$(checkScore $STUDENT_DIR)
     
     # Write to text file
     touch "../$RESULTS_DIR/$RESULT_FILE_NAME"
     printf "$STUDENT_DIR;$SCORE\n" >> "../$RESULTS_DIR/$RESULT_FILE_NAME"
-    
-    # Reset control variables
-    SCORE=0
-    FILE_EXIST=false
-    COMPILED=false
 done
 
 # User Feedback
