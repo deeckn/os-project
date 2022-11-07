@@ -31,12 +31,18 @@ RESULT_FILE_NAME="result$LAB_FILE_NAME.txt"
         -> Lab3 doesn't exist, give feedback and terminate program (or loop to receive input until correct, or allow them to quit)
 com
 
-# Change to lab directory
+# change to lab directory
 if [ -d "$LAB_FOLDER_PATH/$LAB_NUMBER" ]
-then 
-    cd "$LAB_FOLDER_PATH/$LAB_NUMBER"
+then cd "$LAB_FOLDER_PATH/$LAB_NUMBER"
 else 
     echo "directory is not exist"
+    exit "-1"
+fi
+
+# check expected output
+if [ -z "$2" ]
+then 
+    echo "Excepted output is Null"
     exit "-1"
 fi
 
@@ -101,4 +107,4 @@ do
 done
 
 # User Feedback
-printf "\nResult file created at $LAB_FOLDER_PATH$RESULTS_DIR/$RESULT_FILE_NAME"
+printf "Result file created at $LAB_FOLDER_PATH$RESULTS_DIR/$RESULT_FILE_NAME"
