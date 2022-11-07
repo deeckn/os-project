@@ -18,7 +18,7 @@ LAB_NUMBER="${LAB_FILE_NAME::LENGTH-1}" #LABFILE_NAME[-1]
 
 # Result location
 RESULTS_DIR="LabResults"
-RESULT_FILE_NAME="result$LAB_FILE_NAME.txt"
+RESULT_FILE_NAME="result$LAB_FILE_NAME.csv"
 
 # user input validation
 if [ ! $LENGTH -eq 5 ] || [ -z "$EXPECTED_OUTPUT" ]
@@ -80,14 +80,14 @@ function checkScore {
 }
 
 # clear file content if exist or create new one
-> "../$RESULTS_DIR/$RESULT_FILE_NAME"
+echo "StudentId,Score" > "../$RESULTS_DIR/$RESULT_FILE_NAME"
 
 # Loop through each student
 for STUDENT_DIR in *
 do
     # score from function
     SCORE=$(checkScore $STUDENT_DIR)
-    printf "$STUDENT_DIR;$SCORE\n" >> "../$RESULTS_DIR/$RESULT_FILE_NAME"
+    echo "$STUDENT_DIR,$SCORE" >> "../$RESULTS_DIR/$RESULT_FILE_NAME"
 done
 
 # User Feedback
