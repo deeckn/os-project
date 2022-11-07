@@ -16,33 +16,22 @@ EXPECTED_OUTPUT="$2"
 LENGTH=${#LAB_FILE_NAME}
 LAB_NUMBER="${LAB_FILE_NAME::LENGTH-1}" #LABFILE_NAME[-1]
 
-<<com
-    Beam Part: Check input format
-    Be sure to use variables that is easily understandable and use comments if needed
-com
-
 # Result location
 RESULTS_DIR="LabResults"
 RESULT_FILE_NAME="result$LAB_FILE_NAME.txt"
 
-<<com
-    TODO: Check if lab directory exists
-    Eg. ./autochecker.sh Lab31 20
-        -> Lab3 doesn't exist, give feedback and terminate program (or loop to receive input until correct, or allow them to quit)
-com
+# user input validation
+if [ ! $LENGTH -eq 5 ] || [ -z "$EXPECTED_OUTPUT" ]
+then 
+    echo "try again: ./autochecker.sh Lab[1 - 9][1 - 9] [expected output]"
+    exit "-1"
+fi
 
 # change to lab directory
 if [ -d "$LAB_FOLDER_PATH/$LAB_NUMBER" ]
 then cd "$LAB_FOLDER_PATH/$LAB_NUMBER"
 else 
     echo "directory is not exist"
-    exit "-1"
-fi
-
-# check expected output
-if [ -z "$2" ]
-then 
-    echo "Excepted output is Null"
     exit "-1"
 fi
 
@@ -90,19 +79,14 @@ function checkScore {
     echo $SCORE
 }
 
-# Check if result file exist
-if [ -e "../$RESULTS_DIR/$RESULT_FILE_NAME" ]
-# Delete existing file
-then rm "../$RESULTS_DIR/$RESULT_FILE_NAME"
-fi
+# clear file content if exist or create new one
+> "../$RESULTS_DIR/$RESULT_FILE_NAME"
 
 # Loop through each student
 for STUDENT_DIR in *
 do
+    # score from function
     SCORE=$(checkScore $STUDENT_DIR)
-    
-    # Write to text file
-    touch "../$RESULTS_DIR/$RESULT_FILE_NAME"
     printf "$STUDENT_DIR;$SCORE\n" >> "../$RESULTS_DIR/$RESULT_FILE_NAME"
 done
 
