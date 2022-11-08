@@ -13,6 +13,17 @@ LAB_FOLDER_PATH="Labs/"
 # Input
 LAB_FILE_NAME="$1"
 EXPECTED_OUTPUT="$2"
+
+# user input validation
+# if call a file without parameter "./autochecker"
+if [ -z "$LAB_FILE_NAME" ] && [ -z "$EXPECTED_OUTPUT" ]
+then 
+    read -p "Enter lab no: " LAB_NO
+    read -p "Enter question no: " QUESTION_NO
+    read -p "Enter expected output: " EXPECTED_OUTPUT
+    LAB_FILE_NAME="Lab$LAB_NO$QUESTION_NO"
+fi
+
 LENGTH=${#LAB_FILE_NAME}
 LAB_NUMBER="${LAB_FILE_NAME::LENGTH-1}" #LABFILE_NAME[-1]
 
@@ -91,4 +102,4 @@ do
 done
 
 # User Feedback
-printf "Result file created at $LAB_FOLDER_PATH$RESULTS_DIR/$RESULT_FILE_NAME"
+echo "Result file created at $LAB_FOLDER_PATH$RESULTS_DIR/$RESULT_FILE_NAME"
