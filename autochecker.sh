@@ -13,62 +13,66 @@ LAB_FOLDER_PATH="Labs/"
 # Input
 LAB_FILE_NAME="$1"
 EXPECTED_OUTPUT="$2"
+
+# user input validation
+# if call a file without parameter "./autochecker"
+if [ -z "$LAB_FILE_NAME" ] && [ -z "$EXPECTED_OUTPUT" ]
+then 
+    read -p "Enter lab no: " LAB_NO
+    read -p "Enter question no: " QUESTION_NO
+    read -p "Enter expected output: " EXPECTED_OUTPUT
+    LAB_FILE_NAME="Lab$LAB_NO$QUESTION_NO"
+fi
+
 LENGTH=${#LAB_FILE_NAME}
 LAB_NUMBER="${LAB_FILE_NAME::LENGTH-1}" #LABFILE_NAME[-1]
 
-<<com
-    Beam Part: Check input format
-    Be sure to use variables that is easily understandable and use comments if needed
-com
-
 # Result location
 RESULTS_DIR="LabResults"
-RESULT_FILE_NAME="result$LAB_FILE_NAME.txt"
+RESULT_FILE_NAME="result$LAB_FILE_NAME.csv"
 
-# Change to lab directory
-<<com
-    TODO: Check if lab directory exists
-    Eg. ./autochecker.sh Lab31 20
-        -> Lab3 doesn't exist, give feedback and terminate program (or loop to receive input until correct, or allow them to quit)
-com
-cd "$LAB_FOLDER_PATH/$LAB_NUMBER"
-
-# Control variables
-SCORE=0
-FILE_EXIST=false
-COMPILED=false
-
-# Check if result file exist
-if [ -e "../$RESULTS_DIR/$RESULT_FILE_NAME" ]
-# Delete existing file
-then rm "../$RESULTS_DIR/$RESULT_FILE_NAME"
+# user input validation
+if [ ! $LENGTH -eq 5 ] || [ -z "$EXPECTED_OUTPUT" ]
+then 
+    echo "try again: ./autochecker.sh Lab[1 - 9][1 - 9] [expected output]"
+    exit "-1"
 fi
 
-# Loop through each student
-for STUDENT_DIR in *
-do
-    # Check if file exist
-    if [ -e "$STUDENT_DIR/$LAB_FILE_NAME.c" ]
+# change to lab directory
+if [ -d "$LAB_FOLDER_PATH/$LAB_NUMBER" ]
+then cd "$LAB_FOLDER_PATH/$LAB_NUMBER"
+else 
+    echo "directory is not exist"
+    exit "-1"
+fi
+
+# param: studentDir
+function checkScore {
+    local FILE_EXIST=false
+    local COMPILED=false
+    local SCORE=0
+
+    # check if file exist
+    if [ -e "$1/$LAB_FILE_NAME.c" ]
     then FILE_EXIST=true
     fi
-    
-    # Compile student code
+
+    # complie c code
     if $FILE_EXIST
     then
-        if gcc "$STUDENT_DIR/$LAB_FILE_NAME.c" -o "$STUDENT_DIR/$LAB_FILE_NAME"
+        if gcc "$1/$LAB_FILE_NAME.c" -o "$1/$LAB_FILE_NAME"
         then
             COMPILED=true
             SCORE=$((SCORE+1))
-        else
-            SCORE=1
+        else SCORE=1
         fi
     fi
-    
-    # Run student code
+
+    # run c code
     if $COMPILED
     then
-        ./"$STUDENT_DIR/$LAB_FILE_NAME"
-        OUTPUT=$?
+        ./"$1/$LAB_FILE_NAME"
+        local OUTPUT=$?
         
         # Check if output is correct
         if [[ $OUTPUT == $EXPECTED_OUTPUT ]]
@@ -76,21 +80,26 @@ do
         else SCORE=$((SCORE+1))
         fi
     fi
-    
-    # Delete executable file
+
+    # delete executable file
     if $COMPILED
-    then rm "$STUDENT_DIR/$LAB_FILE_NAME"
+    then rm "$1/$LAB_FILE_NAME"
     fi
-    
-    # Write to text file
-    touch "../$RESULTS_DIR/$RESULT_FILE_NAME"
-    printf "$STUDENT_DIR;$SCORE\n" >> "../$RESULTS_DIR/$RESULT_FILE_NAME"
-    
-    # Reset control variables
-    SCORE=0
-    FILE_EXIST=false
-    COMPILED=false
+
+    # return score
+    echo $SCORE
+}
+
+# clear file content if exist or create new one
+echo "StudentId,Score" > "../$RESULTS_DIR/$RESULT_FILE_NAME"
+
+# Loop through each student
+for STUDENT_DIR in *
+do
+    # score from function
+    SCORE=$(checkScore $STUDENT_DIR)
+    echo "$STUDENT_DIR,$SCORE" >> "../$RESULTS_DIR/$RESULT_FILE_NAME"
 done
 
 # User Feedback
-printf "\nResult file created at $LAB_FOLDER_PATH$RESULTS_DIR/$RESULT_FILE_NAME"
+echo "Result file created at $LAB_FOLDER_PATH$RESULTS_DIR/$RESULT_FILE_NAME"
