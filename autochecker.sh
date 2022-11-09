@@ -27,6 +27,49 @@ fi
 LENGTH=${#LAB_FILE_NAME}
 LAB_NUMBER="${LAB_FILE_NAME::LENGTH-1}" #LABFILE_NAME[-1]
 
+#user input validation
+#if 2 parameters is wrong
+standard_length=5
+standard_lab_name="Lab"
+temp="${LAB_FILE_NAME:0:3}"
+regex='^[0-9]+$'
+lab_no_check="${LAB_FILE_NAME:3:$LENGTH}"
+
+#check if the string after Lab is integer
+until [[ $lab_no_check =~ $regex ]];
+do
+    echo "Please enter in this format LabXY Z"
+    echo "where X Y Z is positive interger"
+    echo "ex. Lab11 20"
+
+    read INPUT
+    FILE_NAME=$(echo $INPUT| cut -d' ' -f 1)
+    LENGTH=${#FILE_NAME}
+    LAB_FILE_NAME=$FILE_NAME
+    LAB_NUMBER="${FILE_NAME::LENGTH-1}"
+    EXPECTED_OUTPUT=$(echo $INPUT| cut -d' ' -f 2)
+    temp="${LAB_FILE_NAME:0:3}"
+    lab_no_check="${LAB_FILE_NAME:3:$LENGTH}"
+done
+
+#check if the Lab is spelled correctly and have both Lab no. and question no.
+until [ $temp == $standard_lab_name ] && [ $LENGTH -ge $standard_length ]
+do 
+    echo "Please enter in this format LabXY Z"
+    echo "where X Y Z is positive interger"
+    echo "ex. Lab11 20"
+
+    read INPUT
+    FILE_NAME=$(echo $INPUT| cut -d' ' -f 1)
+    LENGTH=${#FILE_NAME}
+    LAB_FILE_NAME=$FILE_NAME
+    LAB_NUMBER="${FILE_NAME::LENGTH-1}"
+    EXPECTED_OUTPUT=$(echo $INPUT| cut -d' ' -f 2)
+    temp="${LAB_FILE_NAME:0:3}"
+    lab_no_check="${LAB_FILE_NAME:3:$LENGTH}"
+done
+
+
 # Result location
 RESULTS_DIR="LabResults"
 RESULT_FILE_NAME="result$LAB_FILE_NAME.csv"
