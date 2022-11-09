@@ -1,6 +1,14 @@
 #! /usr/bin/bash
 
 <<com
+63011119 Chakrin Deesit
+63011199 Natcha Teekayu
+63011278 Prima Sirinapapant
+63011290 Ratchwalee Wongritdechakit
+63011335 Tawan Lekngam
+com
+
+<<com
 Criteria:
 - 0 for no file
 - 1 for compilation error
@@ -14,78 +22,72 @@ LAB_FOLDER_PATH="Labs/"
 LAB_FILE_NAME="$1"
 EXPECTED_OUTPUT="$2"
 
-# user input validation
-# if call a file without parameter "./autochecker"
+# Program called without receiving any arguments
 if [ -z "$LAB_FILE_NAME" ] && [ -z "$EXPECTED_OUTPUT" ]
-then 
-    read -p "Enter lab no: " LAB_NO
-    read -p "Enter question no: " QUESTION_NO
-    read -p "Enter expected output: " EXPECTED_OUTPUT
+then
+    read -p "Lab Number: " LAB_NO
+    read -p "Question Number: " QUESTION_NO
+    read -p "Expected output: " EXPECTED_OUTPUT
     LAB_FILE_NAME="Lab$LAB_NO$QUESTION_NO"
 fi
 
 LENGTH=${#LAB_FILE_NAME}
-LAB_NUMBER="${LAB_FILE_NAME::LENGTH-1}" #LABFILE_NAME[-1]
+LAB_NUMBER="${LAB_FILE_NAME::LENGTH-1}"
 
-#user input validation
-#if 2 parameters is wrong
-standard_length=5
-standard_lab_name="Lab"
-temp="${LAB_FILE_NAME:0:3}"
-regex='^[0-9]+$'
-lab_no_check="${LAB_FILE_NAME:3:$LENGTH}"
+# Validate user arguments
+STD_LEN=5
+STD_LAB_NAME="Lab"
+TEMP="${LAB_FILE_NAME:0:3}"
+REGEX='^[0-9]+$'
+LAB_NO_CHECK="${LAB_FILE_NAME:3:$LENGTH}"
 
-#check if the string after Lab is integer
-until [[ $lab_no_check =~ $regex ]];
+# Check if the string after Lab is an integer
+until [[ $LAB_NO_CHECK =~ $REGEX ]];
 do
-    echo "Please enter in this format LabXY Z"
-    echo "where X Y Z is positive interger"
-    echo "ex. Lab11 20"
-
+    echo "Please enter in the format: LabXY Z"
+    echo "X = Lab number"
+    echo "Y = Question number"
+    echo "Z = Expected result"
+    echo "Eg. Lab11 20"
+    
     read INPUT
     FILE_NAME=$(echo $INPUT| cut -d' ' -f 1)
     LENGTH=${#FILE_NAME}
     LAB_FILE_NAME=$FILE_NAME
     LAB_NUMBER="${FILE_NAME::LENGTH-1}"
     EXPECTED_OUTPUT=$(echo $INPUT| cut -d' ' -f 2)
-    temp="${LAB_FILE_NAME:0:3}"
-    lab_no_check="${LAB_FILE_NAME:3:$LENGTH}"
+    TEMP="${LAB_FILE_NAME:0:3}"
+    LAB_NO_CHECK="${LAB_FILE_NAME:3:$LENGTH}"
 done
 
-#check if the Lab is spelled correctly and have both Lab no. and question no.
-until [ $temp == $standard_lab_name ] && [ $LENGTH -ge $standard_length ]
-do 
-    echo "Please enter in this format LabXY Z"
-    echo "where X Y Z is positive interger"
-    echo "ex. Lab11 20"
-
+# Check if the Lab is spelled correctly and provided both lab no. and question no.
+until [ $TEMP == $STD_LAB_NAME ] && [ $LENGTH -ge $STD_LEN ]
+do
+    echo "Please enter in the format: LabXY Z"
+    echo "X = Lab number"
+    echo "Y = Question number"
+    echo "Z = Expected result"
+    echo "Eg. Lab11 20"
+    
     read INPUT
     FILE_NAME=$(echo $INPUT| cut -d' ' -f 1)
     LENGTH=${#FILE_NAME}
     LAB_FILE_NAME=$FILE_NAME
     LAB_NUMBER="${FILE_NAME::LENGTH-1}"
     EXPECTED_OUTPUT=$(echo $INPUT| cut -d' ' -f 2)
-    temp="${LAB_FILE_NAME:0:3}"
-    lab_no_check="${LAB_FILE_NAME:3:$LENGTH}"
+    TEMP="${LAB_FILE_NAME:0:3}"
+    LAB_NO_CHECK="${LAB_FILE_NAME:3:$LENGTH}"
 done
-
 
 # Result location
 RESULTS_DIR="LabResults"
 RESULT_FILE_NAME="result$LAB_FILE_NAME.csv"
 
-# user input validation
-if [ ! $LENGTH -eq 5 ] || [ -z "$EXPECTED_OUTPUT" ]
-then 
-    echo "try again: ./autochecker.sh Lab[1 - 9][1 - 9] [expected output]"
-    exit "-1"
-fi
-
-# change to lab directory
+# Change to lab directory
 if [ -d "$LAB_FOLDER_PATH/$LAB_NUMBER" ]
 then cd "$LAB_FOLDER_PATH/$LAB_NUMBER"
-else 
-    echo "directory is not exist"
+else
+    echo "$LAB_NUMBER does not exist, please create one or choose a different lab number"
     exit "-1"
 fi
 
@@ -94,13 +96,13 @@ function checkScore {
     local FILE_EXIST=false
     local COMPILED=false
     local SCORE=0
-
-    # check if file exist
+    
+    # Check file existence
     if [ -e "$1/$LAB_FILE_NAME.c" ]
     then FILE_EXIST=true
     fi
-
-    # complie c code
+    
+    # Complie C code
     if $FILE_EXIST
     then
         if gcc "$1/$LAB_FILE_NAME.c" -o "$1/$LAB_FILE_NAME"
@@ -110,8 +112,8 @@ function checkScore {
         else SCORE=1
         fi
     fi
-
-    # run c code
+    
+    # Execute compiled C code
     if $COMPILED
     then
         ./"$1/$LAB_FILE_NAME"
@@ -123,23 +125,23 @@ function checkScore {
         else SCORE=$((SCORE+1))
         fi
     fi
-
-    # delete executable file
+    
+    # Delete executable file
     if $COMPILED
     then rm "$1/$LAB_FILE_NAME"
     fi
-
-    # return score
+    
+    # Return score
     echo $SCORE
 }
 
-# clear file content if exist or create new one
+# Clear file content if exist or create new one
 echo "StudentId,Score" > "../$RESULTS_DIR/$RESULT_FILE_NAME"
 
 # Loop through each student
 for STUDENT_DIR in *
 do
-    # score from function
+    # Score from checkScore function
     SCORE=$(checkScore $STUDENT_DIR)
     echo "$STUDENT_DIR,$SCORE" >> "../$RESULTS_DIR/$RESULT_FILE_NAME"
 done
