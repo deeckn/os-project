@@ -17,4 +17,4 @@ gcc and bash is required for the execution of the script
 2.1. X = Lab Number\
 2.2. Y = Question Number\
 2.3. Z = Expected Output.
-3. Check in the `LabResults` directory located at `home/Labs` for the lab results. The results will be in a text file with the name of `resultLabXY.txt`.
+3. Check in the `LabResults` directory located at `home/Labs` for the lab results. The results will be in a CSV file with the name of `resultLabXY.csv`.
